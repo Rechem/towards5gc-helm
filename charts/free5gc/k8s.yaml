@@ -1,0 +1,3505 @@
+---
+# Source: free5gc/charts/mongodb/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mongodb
+  namespace: default
+  labels:
+    app.kubernetes.io/name: mongodb
+    helm.sh/chart: mongodb-10.7.0
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+secrets:
+  - name: mongodb
+---
+# Source: free5gc/charts/free5gc-amf/templates/amf-configmap.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI, Ian Chen
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: release-name-free5gc-amf-configmap
+  labels:
+    app: free5gc
+data:
+  amfcfg.yaml: |
+    info:
+      version: 1.0.9
+      description: AMF initial local configuration
+
+    configuration:
+      serviceNameList:
+        - namf-comm
+        - namf-evts
+        - namf-mt
+        - namf-loc
+        - namf-oam
+
+      ngapIpList:
+        - 10.100.50.249
+      ngapPort: 38412 # the SCTP port listened by NGAP
+      sbi:
+        scheme: http
+        registerIPv4: release-name-free5gc-amf-service # IP used to register to NRF
+        bindingIPv4: 0.0.0.0  # IP used to bind the service
+        port: 80
+        tls:
+          key: ../cert/amf.key
+          pem: ../cert/amf.pem
+
+      nrfUri: http://nrf-nnrf:8000
+      amfName: AMF
+      serviceNameList:
+        - namf-comm
+        - namf-evts
+        - namf-mt
+        - namf-loc
+        - namf-oam
+      servedGuamiList:
+        - plmnId:
+            mcc: 208
+            mnc: 93
+          amfId: cafe00
+      supportTaiList:
+        - plmnId:
+            mcc: 208
+            mnc: 93
+          tac: 000001
+      plmnSupportList:
+        - plmnId:
+            mcc: 208
+            mnc: 93
+          snssaiList:
+            - sst: 1
+              sd: 010203
+            - sst: 1
+              sd: 112233
+      supportDnnList:
+        - internet
+      security:
+        integrityOrder:
+          - NIA2
+        cipheringOrder:
+          - NEA0
+      networkName:
+        full: free5GC
+        short: free
+      ngapIE: # Optional NGAP IEs
+        mobilityRestrictionList: # Mobility Restriction List IE, refer to TS 38.413
+          enable: true # append this IE in related message or not
+        maskedIMEISV: # Masked IMEISV IE, refer to TS 38.413
+          enable: true # append this IE in related message or not
+        redirectionVoiceFallback: # Redirection Voice Fallback IE, refer to TS 38.413
+          enable: false # append this IE in related message or not
+      nasIE: # Optional NAS IEs
+        networkFeatureSupport5GS: # 5gs Network Feature Support IE, refer to TS 24.501
+          enable: true # append this IE in Registration accept or not
+          length: 1 # IE content length (uinteger, range: 1~3)
+          imsVoPS: 0 # IMS voice over PS session indicator (uinteger, range: 0~1)
+          emc: 0 # Emergency service support indicator for 3GPP access (uinteger, range: 0~3)
+          emf: 0 # Emergency service fallback indicator for 3GPP access (uinteger, range: 0~3)
+          iwkN26: 0 # Interworking without N26 interface indicator (uinteger, range: 0~1)
+          mpsi: 0 # MPS indicator (uinteger, range: 0~1)
+          emcN3: 0 # Emergency service support indicator for Non-3GPP access (uinteger, range: 0~1)
+          mcsi: 0 # MCS indicator (uinteger, range: 0~1)
+      t3502Value: 720
+      t3512Value: 3600
+      non3gppDeregTimerValue: 3240
+      # retransmission timer for paging message
+      t3513:
+        enable: true     # true or false
+        expireTime: 6s   # default is 6 seconds
+        maxRetryTimes: 4 # the max number of retransmission
+      # retransmission timer for NAS Registration Accept message
+      t3522:
+        enable: true     # true or false
+        expireTime: 6s   # default is 6 seconds
+        maxRetryTimes: 4 # the max number of retransmission
+      # retransmission timer for NAS Registration Accept message
+      t3550:
+        enable: true     # true or false
+        expireTime: 6s   # default is 6 seconds
+        maxRetryTimes: 4 # the max number of retransmission
+      # retransmission timer for NAS Authentication Request/Security Mode Command message
+      t3560:
+        enable: true     # true or false
+        expireTime: 6s   # default is 6 seconds
+        maxRetryTimes: 4 # the max number of retransmission
+      # retransmission timer for NAS Notification message
+      t3565:
+        enable: true     # true or false
+        expireTime: 6s   # default is 6 seconds
+        maxRetryTimes: 4 # the max number of retransmission
+      t3570:
+        enable: true     # true or false
+        expireTime: 6s   # default is 6 seconds
+        maxRetryTimes: 4 # the max number of retransmission
+      locality: area1 # Name of the location where a set of AMF, SMF, PCF and UPFs are located
+      sctp: # set the sctp server setting <optinal>, once this field is set, please also add maxInputStream, maxOsStream, maxAttempts, maxInitTimeOut
+        numOstreams: 3 # the maximum out streams of each sctp connection
+        maxInstreams: 5 # the maximum in streams of each sctp connection
+        maxAttempts: 2 # the maximum attempts of each sctp connection
+        maxInitTimeout: 2 # the maximum init timeout of each sctp connection
+      defaultUECtxReq: false # the default value of UE Context Request to decide when triggering Initial Context Setup procedure
+
+    logger:
+      enable: true
+      level: info
+      reportCaller: false
+---
+# Source: free5gc/charts/free5gc-ausf/templates/ausf-configmap.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI, Ian Chen
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: release-name-free5gc-ausf-configmap
+  labels:
+    app: free5gc
+data:
+  ausfcfg.yaml: |
+    info:
+      version: 1.0.3
+      description: AUSF initial local configuration
+
+    configuration:
+      serviceNameList:
+        - nausf-auth
+
+      sbi:
+        scheme: http
+        registerIPv4: release-name-free5gc-ausf-service # IP used to register to NRF
+        bindingIPv4: 0.0.0.0  # IP used to bind the service
+        port: 80
+        tls:
+          key: ../cert/ausf.key
+          pem: ../cert/ausf.pem
+
+      nrfUri: http://nrf-nnrf:8000
+      plmnSupportList:
+        - mcc: 208
+          mnc: 93
+        - mcc: 123
+          mnc: 45
+      groupId: ausfGroup001
+      eapAkaSupiImsiPrefix: false
+
+    logger:
+      enable: true
+      level: info
+      reportCaller: false
+---
+# Source: free5gc/charts/free5gc-nrf/templates/nrf-configmap.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI, Ian Chen
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: release-name-free5gc-nrf-configmap
+  labels:
+    app: free5gc
+data:
+  nrfcfg.yaml: |
+    info:
+      version: 1.0.2
+      description: NRF initial local configuration
+
+    configuration:
+      MongoDBName: free5gc
+      MongoDBUrl: mongodb://mongodb:27017
+
+      serviceNameList:
+        - nnrf-nfm
+        - nnrf-disc
+
+      sbi:
+        scheme: http
+        registerIPv4: nrf-nnrf # IP used to serve NFs or register to another NRF
+        bindingIPv4: 0.0.0.0  # IP used to bind the service
+        port: 8000
+        cert:
+          key: ../cert/nrf.key
+          pem: ../cert/nrf.pem
+      DefaultPlmnId:
+        mcc: 208
+        mnc: 93
+
+    logger:
+      enable: true
+      level: info
+      reportCaller: false
+---
+# Source: free5gc/charts/free5gc-nssf/templates/nssf-configmap.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI, Ian Chen
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: release-name-free5gc-nssf-configmap
+  labels:
+    app: free5gc
+data:
+  nssfcfg.yaml: |
+    info:
+      version: 1.0.2
+      description: NSSF initial local configuration
+
+    configuration:
+      serviceNameList:
+        - nnssf-nsselection
+        - nnssf-nssaiavailability
+
+      sbi:
+        scheme: http
+        registerIPv4: release-name-free5gc-nssf-service # IP used to register to NRF
+        bindingIPv4: 0.0.0.0  # IP used to bind the service
+        port: 80
+        tls:
+          key: ../cert/nssf.key
+          pem: ../cert/nssf.pem
+
+      nrfUri: http://nrf-nnrf:8000
+
+      nsiList:
+        - snssai:
+            sst: 1
+          nsiInformationList:
+            - nrfId: http://nrf-nnrf:8000/nnrf-nfm/v1/nf-instances
+              nsiId: 10
+        - snssai:
+            sst: 1
+            sd: 1
+          nsiInformationList:
+            - nrfId: http://nrf-nnrf:8000/nnrf-nfm/v1/nf-instances
+              nsiId: 11
+        - snssai:
+            sst: 1
+            sd: 2
+          nsiInformationList:
+            - nrfId: http://nrf-nnrf:8000/nnrf-nfm/v1/nf-instances
+              nsiId: 12
+            - nrfId: http://nrf-nnrf:8000/nnrf-nfm/v1/nf-instances
+              nsiId: 12
+        - snssai:
+            sst: 1
+            sd: 3
+          nsiInformationList:
+            - nrfId: http://nrf-nnrf:8000/nnrf-nfm/v1/nf-instances
+              nsiId: 13
+        - snssai:
+            sst: 2
+          nsiInformationList:
+            - nrfId: http://nrf-nnrf:8000/nnrf-nfm/v1/nf-instances
+              nsiId: 20
+        - snssai:
+            sst: 2
+            sd: 1
+          nsiInformationList:
+            - nrfId: http://nrf-nnrf:8000/nnrf-nfm/v1/nf-instances
+              nsiId: 21
+        - snssai:
+            sst: 1
+            sd: 010203
+          nsiInformationList:
+            - nrfId: http://nrf-nnrf:8000/nnrf-nfm/v1/nf-instances
+              nsiId: 22
+      amfSetList:
+        - amfSetId: 1
+          amfList:
+            - ffa2e8d7-3275-49c7-8631-6af1df1d9d26
+            - 0e8831c3-6286-4689-ab27-1e2161e15cb1
+            - a1fba9ba-2e39-4e22-9c74-f749da571d0d
+          nrfAmfSet: http://nrf-nnrf:8081/nnrf-nfm/v1/nf-instances
+          supportedNssaiAvailabilityData:
+            - tai:
+                plmnId:
+                  mcc: 466
+                  mnc: 92
+                tac: 33456
+              supportedSnssaiList:
+                - sst: 1
+                  sd: 1
+                - sst: 1
+                  sd: 2
+                - sst: 2
+                  sd: 1
+            - tai:
+                plmnId:
+                  mcc: 466
+                  mnc: 92
+                tac: 33457
+              supportedSnssaiList:
+                - sst: 1
+                - sst: 1
+                  sd: 1
+                - sst: 1
+                  sd: 2
+        - amfSetId: 2
+          nrfAmfSet: http://nrf-nnrf:8084/nnrf-nfm/v1/nf-instances
+          supportedNssaiAvailabilityData:
+            - tai:
+                plmnId:
+                  mcc: 466
+                  mnc: 92
+                tac: 33456
+              supportedSnssaiList:
+                - sst: 1
+                - sst: 1
+                  sd: 1
+                - sst: 1
+                  sd: 3
+                - sst: 2
+                  sd: 1
+            - tai:
+                plmnId:
+                  mcc: 466
+                  mnc: 92
+                tac: 33458
+              supportedSnssaiList:
+                - sst: 1
+                - sst: 1
+                  sd: 1
+                - sst: 2
+      nssfName: NSSF
+      supportedPlmnList:
+        - mcc: 208
+          mnc: 93
+      supportedNssaiInPlmnList:
+        - plmnId:
+            mcc: 208
+            mnc: 93
+          supportedSnssaiList:
+            - sst: 1
+              sd: 010203
+            - sst: 1
+              sd: 112233
+            - sst: 1
+              sd: 3
+            - sst: 2
+              sd: 1
+            - sst: 2
+              sd: 2
+      amfList:
+        - nfId: 469de254-2fe5-4ca0-8381-af3f500af77c
+          supportedNssaiAvailabilityData:
+            - tai:
+                plmnId:
+                  mcc: 466
+                  mnc: 92
+                tac: 33456
+              supportedSnssaiList:
+                - sst: 1
+                - sst: 1
+                  sd: 2
+                - sst: 2
+            - tai:
+                plmnId:
+                  mcc: 466
+                  mnc: 92
+                tac: 33457
+              supportedSnssaiList:
+                - sst: 1
+                  sd: 1
+                - sst: 1
+                  sd: 2
+        - nfId: fbe604a8-27b2-417e-bd7c-8a7be2691f8d
+          supportedNssaiAvailabilityData:
+            - tai:
+                plmnId:
+                  mcc: 466
+                  mnc: 92
+                tac: 33458
+              supportedSnssaiList:
+                - sst: 1
+                - sst: 1
+                  sd: 1
+                - sst: 1
+                  sd: 3
+                - sst: 2
+            - tai:
+                plmnId:
+                  mcc: 466
+                  mnc: 92
+                tac: 33459
+              supportedSnssaiList:
+                - sst: 1
+                - sst: 1
+                  sd: 1
+                - sst: 2
+                - sst: 2
+                  sd: 1
+        - nfId: b9e6e2cb-5ce8-4cb6-9173-a266dd9a2f0c
+          supportedNssaiAvailabilityData:
+            - tai:
+                plmnId:
+                  mcc: 466
+                  mnc: 92
+                tac: 33456
+              supportedSnssaiList:
+                - sst: 1
+                - sst: 1
+                  sd: 1
+                - sst: 1
+                  sd: 2
+                - sst: 2
+            - tai:
+                plmnId:
+                  mcc: 466
+                  mnc: 92
+                tac: 33458
+              supportedSnssaiList:
+                - sst: 1
+                - sst: 1
+                  sd: 1
+                - sst: 2
+                - sst: 2
+                  sd: 1
+      taList:
+        - tai:
+            plmnId:
+              mcc: 466
+              mnc: 92
+            tac: 33456
+          accessType: 3GPP_ACCESS
+          supportedSnssaiList:
+            - sst: 1
+            - sst: 1
+              sd: 1
+            - sst: 1
+              sd: 2
+            - sst: 2
+        - tai:
+            plmnId:
+              mcc: 466
+              mnc: 92
+            tac: 33457
+          accessType: 3GPP_ACCESS
+          supportedSnssaiList:
+            - sst: 1
+            - sst: 1
+              sd: 1
+            - sst: 1
+              sd: 2
+            - sst: 2
+        - tai:
+            plmnId:
+              mcc: 466
+              mnc: 92
+            tac: 33458
+          accessType: 3GPP_ACCESS
+          supportedSnssaiList:
+            - sst: 1
+            - sst: 1
+              sd: 1
+            - sst: 1
+              sd: 3
+            - sst: 2
+          restrictedSnssaiList:
+            - homePlmnId:
+                mcc: 310
+                mnc: 560
+              sNssaiList:
+                - sst: 1
+                  sd: 3
+        - tai:
+            plmnId:
+              mcc: 466
+              mnc: 92
+            tac: 33459
+          accessType: 3GPP_ACCESS
+          supportedSnssaiList:
+            - sst: 1
+            - sst: 1
+              sd: 1
+            - sst: 2
+            - sst: 2
+              sd: 1
+          restrictedSnssaiList:
+            - homePlmnId:
+                mcc: 310
+                mnc: 560
+              sNssaiList:
+                - sst: 2
+                  sd: 1
+      mappingListFromPlmn:
+        - operatorName: NTT Docomo
+          homePlmnId:
+            mcc: 440
+            mnc: 10
+          mappingOfSnssai:
+            - servingSnssai:
+                sst: 1
+                sd: 1
+              homeSnssai:
+                sst: 1
+                sd: 1
+            - servingSnssai:
+                sst: 1
+                sd: 2
+              homeSnssai:
+                sst: 1
+                sd: 3
+            - servingSnssai:
+                sst: 1
+                sd: 3
+              homeSnssai:
+                sst: 1
+                sd: 4
+            - servingSnssai:
+                sst: 2
+                sd: 1
+              homeSnssai:
+                sst: 2
+                sd: 2
+        - operatorName: AT&T Mobility
+          homePlmnId:
+            mcc: 310
+            mnc: 560
+          mappingOfSnssai:
+            - servingSnssai:
+                sst: 1
+                sd: 1
+              homeSnssai:
+                sst: 1
+                sd: 2
+            - servingSnssai:
+                sst: 1
+                sd: 2
+              homeSnssai:
+                sst: 1
+                sd: 3
+
+    logger:
+      enable: true
+      level: info
+      reportCaller: false
+---
+# Source: free5gc/charts/free5gc-pcf/templates/pcf-configmap.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI, Ian Chen
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: release-name-free5gc-pcf-configmap
+  labels:
+    app: free5gc
+data:
+  pcfcfg.yaml: |
+    info:
+      version: 1.0.2
+      description: PCF initial local configuration
+
+    configuration:
+      serviceList:
+        - serviceName: npcf-am-policy-control
+        - serviceName: npcf-smpolicycontrol
+          suppFeat: 3fff
+        - serviceName: npcf-bdtpolicycontrol
+        - serviceName: npcf-policyauthorization
+          suppFeat: 3
+        - serviceName: npcf-eventexposure
+        - serviceName: npcf-ue-policy-control
+
+      sbi:
+        scheme: http
+        registerIPv4: release-name-free5gc-pcf-service # IP used to register to NRF
+        bindingIPv4: 0.0.0.0  # IP used to bind the service
+        port: 80
+        tls:
+          key: ../cert/pcf.key
+          pem: ../cert/pcf.pem
+
+      mongodb:       # the mongodb connected by this PCF
+        name: free5gc                  # name of the mongodb
+        url: mongodb://mongodb:27017 # a valid URL of the mongodb
+
+      nrfUri: http://nrf-nnrf:8000
+      pcfName: PCF
+      timeFormat: 2019-01-02 15:04:05
+      defaultBdtRefId: BdtPolicyId-
+      locality: area1
+
+    logger:
+      enable: true
+      level: info
+      reportCaller: false
+---
+# Source: free5gc/charts/free5gc-smf/templates/smf-configmap.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI, Ian Chen
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: release-name-free5gc-smf-configmap
+  labels:
+    app: free5gc
+data:
+  smfcfg.yaml: |
+    info:
+      version: 1.0.7
+      description: SMF initial local configuration
+
+    configuration:
+      serviceNameList:
+        - nsmf-pdusession
+        - nsmf-event-exposure
+        - nsmf-oam
+
+      sbi:
+        scheme: http
+        registerIPv4: release-name-free5gc-smf-service # IP used to register to NRF
+        bindingIPv4: 0.0.0.0  # IP used to bind the service
+        port: 80
+        tls:
+          key: ../cert/smf.key
+          pem: ../cert/smf.pem
+
+      nrfUri: http://nrf-nnrf:8000
+
+      pfcp:
+        nodeID: 10.100.50.244
+        listenAddr: 10.100.50.244
+        externalAddr: 10.100.50.244
+      smfName: SMF
+      snssaiInfos:
+        - sNssai:
+            sst: 1
+            sd: 010203
+          dnnInfos: # DNN information list
+            - dnn: internet # Data Network Name
+              dns: # the IP address of DNS
+                ipv4: 8.8.8.8
+                ipv6: 2001:4860:4860::8888
+        - sNssai:
+            sst: 1
+            sd: 112233
+          dnnInfos: # DNN information list
+            - dnn: internet # Data Network Name
+              dns: # the IP address of DNS
+                ipv4: 8.8.8.8
+                ipv6: 2001:4860:4860::8888
+        - sNssai:
+            sst: 2
+            sd: 112234
+          dnnInfos:
+            - dnn: internet
+              dns:
+                ipv4: 8.8.8.8
+                ipv6: 2001:4860:4860::8888
+      plmnList: # the list of PLMN IDs that this SMF belongs to (optional, remove this key when unnecessary)
+        - mcc: 208 # Mobile Country Code (3 digits string, digit: 0~9)
+          mnc: 93 # Mobile Network Code (2 or 3 digits string, digit: 0~9)
+      userplaneInformation: # list of userplane information
+        upNodes: # information of userplane node (AN or UPF)
+          gNB1: # the name of the node
+            type: AN # the type of the node (AN or UPF)
+          UPF:  # the name of the node
+            type: UPF # the type of the node (AN or UPF)
+            nodeID: 10.100.50.241 # the IP/FQDN of N4 interface on this UPF (PFCP)
+            addr: 10.100.50.241 # the IP/FQDN of N4 interface on this UPF (PFCP)
+            sNssaiUpfInfos: # S-NSSAI information list for this UPF
+                  - sNssai: # S-NSSAI (Single Network Slice Selection Assistance Information)
+                      sst: 1 # Slice/Service Type (uinteger, range: 0~255)
+                      sd: 010203 # Slice Differentiator (3 bytes hex string, range: 000000~FFFFFF)
+                    dnnUpfInfoList: # DNN information list for this S-NSSAI
+                      - dnn: internet
+                        pools:
+                          - cidr: 10.1.0.0/17
+                        staticPools:
+                          - cidr: 10.1.64.0/24
+                  - sNssai: # S-NSSAI (Single Network Slice Selection Assistance Information)
+                      sst: 1 # Slice/Service Type (uinteger, range: 0~255)
+                      sd: 112233 # Slice Differentiator (3 bytes hex string, range: 000000~FFFFFF)
+                    dnnUpfInfoList: # DNN information list for this S-NSSAI
+                      - dnn: internet
+                        pools:
+                          - cidr: 10.1.128.0/17
+                        staticPools:
+                          - cidr: 10.1.192.0/24
+            interfaces: # Interface list for this UPF
+                  - interfaceType: N3 # the type of the interface (N3 or N9)
+                    endpoints: # the IP address of this N3/N9 interface on this UPF
+                      - 10.100.50.233
+                    networkInstances:
+                      - internet # Data Network Name (DNN)
+        links: # the topology graph of userplane, A and B represent the two nodes of each link
+          - A: gNB1
+            B: UPF
+      locality: area1 # Name of the location where a set of AMF, SMF and UPFs are located
+      
+      t3591:
+        enable: true     # true or false
+        expireTime: 16s   # default is 6 seconds
+        maxRetryTimes: 3 # the max number of retransmission
+      # retransmission timer for pdu session release command
+      t3592:
+        enable: true     # true or false
+        expireTime: 16s   # default is 6 seconds
+        maxRetryTimes: 3 # the max number of retransmission
+
+    logger:
+      enable: true
+      level: info
+      reportCaller: false
+
+
+  uerouting.yaml: |
+    info:
+      version: 1.0.7
+      description: Routing information for UE
+    ueRoutingInfo:
+      UE1: # Group Name
+        members:
+        - imsi-208930000000003 # Subscription Permanent Identifier of the UE
+        topology: # Network topology for this group (Uplink: A->B, Downlink: B->A)
+        # default path derived from this topology
+        # node name should be consistent with smfcfg.yaml
+          - A: gNB1
+            B: BranchingUPF
+          - A: BranchingUPF
+            B: AnchorUPF1
+        specificPath:
+          - dest: 10.100.100.26/32 # the destination IP address on Data Network (DN)
+            # the order of UPF nodes in this path. We use the UPF's name to represent each UPF node.
+            # The UPF's name should be consistent with smfcfg.yaml
+            path: [BranchingUPF, AnchorUPF2]
+      
+      UE2: # Group Name
+        members:
+        - imsi-208930000000004 # Subscription Permanent Identifier of the UE
+        topology: # Network topology for this group (Uplink: A->B, Downlink: B->A)
+        # default path derived from this topology
+        # node name should be consistent with smfcfg.yaml
+          - A: gNB1
+            B: BranchingUPF
+          - A: BranchingUPF
+            B: AnchorUPF1
+        specificPath:
+          - dest: 10.100.100.16/32 # the destination IP address on Data Network (DN)
+            # the order of UPF nodes in this path. We use the UPF's name to represent each UPF node.
+            # The UPF's name should be consistent with smfcfg.yaml
+            path: [BranchingUPF, AnchorUPF2]
+---
+# Source: free5gc/charts/free5gc-udm/templates/udm-configmap.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI, Ian Chen
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: release-name-free5gc-udm-configmap
+  labels:
+    app: free5gc
+data:
+  udmcfg.yaml: |
+    info:
+      version: 1.0.3
+      description: UDM initial local configuration
+
+    configuration:
+      serviceNameList:
+        - nudm-sdm
+        - nudm-uecm
+        - nudm-ueau
+        - nudm-ee
+        - nudm-pp
+
+      sbi:
+        scheme: http
+        registerIPv4: release-name-free5gc-udm-service # IP used to register to NRF
+        bindingIPv4: 0.0.0.0  # IP used to bind the service
+        port: 80
+        tls:
+          key: ../cert/udm.key
+          pem: ../cert/udm.pem
+
+      nrfUri: http://nrf-nnrf:8000
+      # test data set from TS33501-f60 Annex C.4
+      SuciProfile:
+        - ProtectionScheme: 1 # Protect Scheme: Profile A
+          PrivateKey: c53c22208b61860b06c62e5406a7b330c2b577aa5558981510d128247d38bd1d
+          PublicKey: 5a8d38864820197c3394b92613b20b91633cbd897119273bf8e4a6f4eec0a650
+        - ProtectionScheme: 2 # Protect Scheme: Profile B
+          PrivateKey: F1AB1074477EBCC7F554EA1C5FC368B1616730155E0041AC447D6301975FECDA
+          PublicKey: 0472DA71976234CE833A6907425867B82E074D44EF907DFB4B3E21C1C2256EBCD15A7DED52FCBB097A4ED250E036C7B9C8C7004C4EEDC4F068CD7BF8D3F900E3B4
+
+    logger:
+      enable: true
+      level: info
+      reportCaller: false
+---
+# Source: free5gc/charts/free5gc-udr/templates/udr-configmap.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI, Ian Chen
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: release-name-free5gc-udr-configmap
+  labels:
+    app: free5gc
+data:
+  udrcfg.yaml: |
+    info:
+      version: 1.0.2
+      description: UDR initial local configuration
+
+    configuration:
+      sbi:
+        scheme: http
+        registerIPv4: release-name-free5gc-udr-service # IP used to register to NRF
+        bindingIPv4: 0.0.0.0  # IP used to bind the service
+        port: 80
+        tls:
+          key: ../cert/udr.key
+          pem: ../cert/udr.pem
+
+      mongodb:
+        name: free5gc
+        url: mongodb://mongodb:27017
+
+      nrfUri: http://nrf-nnrf:8000
+
+    logger:
+      enable: true
+      level: info
+      reportCaller: false
+---
+# Source: free5gc/charts/free5gc-upf/templates/upf/upf-configmap.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: release-name-free5gc-upf-upf-configmap
+  labels:
+    app: free5gc
+data:
+  upfcfg.yaml: |
+    version: 1.0.3
+    description: UPF initial local configuration
+
+    # The listen IP and nodeID of the N4 interface on this UPF (Can't set to 0.0.0.0)
+    pfcp:
+      addr: 10.100.50.241   # IP addr for listening
+      nodeID: 10.100.50.241 # External IP or FQDN can be reached
+      retransTimeout: 1s # retransmission timeout
+      maxRetrans: 3 # the max number of retransmission
+
+    gtpu:
+      forwarder: gtp5g
+      # The IP list of the N3/N9 interfaces on this UPF
+      # If there are multiple connection, set addr to 0.0.0.0 or list all the addresses
+      ifList:
+        - addr: 10.100.50.233
+          type: N3
+          # name: upf.5gc.nctu.me
+          # ifname: gtpif
+    dnnList:
+    - cidr: 10.1.0.0/17
+      dnn: internet
+      natifname: n6
+    logger:
+      enable: true
+      level: info
+      reportCaller: false
+
+  wrapper.sh: |
+    #!/bin/sh
+
+    ### Implement networking rules
+    iptables -A FORWARD -j ACCEPT
+    iptables -t nat -A POSTROUTING -s 10.1.0.0/16 -o n6 -j MASQUERADE  # route traffic comming from the UE SUBNET to the interface N6
+    echo "1200 n6if" >> /etc/iproute2/rt_tables # create a routing table for the interface N6
+    ip rule add from 10.1.0.0/16 table n6if   # use the created ip table to route the traffic comming from the UE SUBNET
+    ip route add default via 10.100.100.1 dev n6 table n6if  # add a default route in the created table so that all UEs will use this gateway for external communications (target IP not in the Data Network attached to the interface N6) and then the Data Network will manage to route the traffic
+
+    /free5gc/upf/upf -c /free5gc/config//upfcfg.yaml
+---
+# Source: free5gc/charts/free5gc-webui/templates/webui-configmap.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI, Ian Chen
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: webui-configmap
+  labels:
+    app: free5gc
+data:
+  webuicfg.yaml: |
+    info:
+      version: 1.0.1
+      description: WEBUI initial local configuration
+
+    configuration:
+      mongodb:
+        name: free5gc
+        url: mongodb://mongodb:27017
+        
+    logger:
+      enable: true
+      level: info
+      reportCaller: false
+---
+# Source: free5gc/charts/free5gc-amf/templates/amf-service.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: release-name-free5gc-amf-service
+  labels:
+    helm.sh/chart: free5gc-amf-0.2.7
+    app.kubernetes.io/name: free5gc-amf
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+    project: free5gc
+    nf: amf
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: free5gc-amf
+    app.kubernetes.io/instance: release-name
+    project: free5gc
+    nf: amf
+---
+# Source: free5gc/charts/free5gc-ausf/templates/ausf-service.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: release-name-free5gc-ausf-service
+  labels:
+    helm.sh/chart: free5gc-ausf-0.2.7
+    app.kubernetes.io/name: free5gc-ausf
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+    project: free5gc
+    nf: ausf
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: free5gc-ausf
+    app.kubernetes.io/instance: release-name
+    project: free5gc
+    nf: ausf
+---
+# Source: free5gc/charts/free5gc-nrf/templates/nrf-service.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: nrf-nnrf
+  labels:
+    helm.sh/chart: free5gc-nrf-0.2.7
+    app.kubernetes.io/name: free5gc-nrf
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+    project: free5gc
+    nf: nrf
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: free5gc-nrf
+    app.kubernetes.io/instance: release-name
+    project: free5gc
+    nf: nrf
+---
+# Source: free5gc/charts/free5gc-nssf/templates/nssf-service.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: release-name-free5gc-nssf-service
+  labels:
+    helm.sh/chart: free5gc-nssf-0.2.7
+    app.kubernetes.io/name: free5gc-nssf
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+    project: free5gc
+    nf: nssf
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: free5gc-nssf
+    app.kubernetes.io/instance: release-name
+    project: free5gc
+    nf: nssf
+---
+# Source: free5gc/charts/free5gc-pcf/templates/pcf-service.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: release-name-free5gc-pcf-service
+  labels:
+    helm.sh/chart: free5gc-pcf-0.2.7
+    app.kubernetes.io/name: free5gc-pcf
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+    project: free5gc
+    nf: pcf
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: free5gc-pcf
+    app.kubernetes.io/instance: release-name
+    project: free5gc
+    nf: pcf
+---
+# Source: free5gc/charts/free5gc-smf/templates/smf-service.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: release-name-free5gc-smf-service
+  labels:
+    helm.sh/chart: free5gc-smf-0.2.7
+    app.kubernetes.io/name: free5gc-smf
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+    project: free5gc
+    nf: smf
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: free5gc-smf
+    app.kubernetes.io/instance: release-name
+    project: free5gc
+    nf: smf
+---
+# Source: free5gc/charts/free5gc-udm/templates/udm-service.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: release-name-free5gc-udm-service
+  labels:
+    helm.sh/chart: free5gc-udm-0.2.7
+    app.kubernetes.io/name: free5gc-udm
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+    project: free5gc
+    nf: udm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: free5gc-udm
+    app.kubernetes.io/instance: release-name
+    project: free5gc
+    nf: udm
+---
+# Source: free5gc/charts/free5gc-udr/templates/udr-service.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: release-name-free5gc-udr-service
+  labels:
+    helm.sh/chart: free5gc-udr-0.2.7
+    app.kubernetes.io/name: free5gc-udr
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+    project: free5gc
+    nf: udr
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: free5gc-udr
+    app.kubernetes.io/instance: release-name
+    project: free5gc
+    nf: udr
+---
+# Source: free5gc/charts/free5gc-webui/templates/webui-service.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: webui-service
+  labels:
+    helm.sh/chart: free5gc-webui-0.1.5
+    app.kubernetes.io/name: free5gc-webui
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+    project: free5gc
+    nf: webui
+spec:
+  type: NodePort
+  ports:
+    - port: 5000
+      targetPort: 5000
+      nodePort: 30500
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: free5gc-webui
+    app.kubernetes.io/instance: release-name
+    project: free5gc
+    nf: webui
+---
+# Source: free5gc/charts/mongodb/templates/standalone/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  namespace: default
+  labels:
+    app.kubernetes.io/name: mongodb
+    helm.sh/chart: mongodb-10.7.0
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: mongodb
+spec:
+  type: ClusterIP
+  ports:
+    - name: mongodb
+      port: 27017
+      targetPort: mongodb
+      nodePort: null
+  selector:
+    app.kubernetes.io/name: mongodb
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/component: mongodb
+---
+# Source: free5gc/charts/free5gc-amf/templates/amf-deployment.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: release-name-free5gc-amf-amf
+  labels:
+    helm.sh/chart: free5gc-amf-0.2.7
+    app.kubernetes.io/name: free5gc-amf
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+    project: free5gc
+    nf: amf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: free5gc-amf
+      app.kubernetes.io/instance: release-name
+      project: free5gc
+      nf: amf
+  template:
+    metadata:
+      annotations:
+        
+        k8s.v1.cni.cncf.io/networks: '[
+            { "name": "n2network-release-name-free5gc-amf",
+              "interface": "n2",
+              "ips": [ "10.100.50.249/29" ],
+              "gateway": [ "10.100.50.254" ]
+            }]'
+        checksum/config: 05dedded7a4f16ecc95b3a96319ff4db6ac9058e4327a47ac32957bf0134bb43
+      labels:
+        app.kubernetes.io/name: free5gc-amf
+        app.kubernetes.io/instance: release-name
+        project: free5gc
+        nf: amf
+    spec:
+      imagePullSecrets:
+        []
+      securityContext:
+        {}
+      initContainers:
+      - name: wait-nrf
+        image: towards5gs/initcurl:1.0.0
+        env:
+        - name: DEPENDENCIES
+          value: http://nrf-nnrf:8000
+        command: ['sh', '-c', 'set -x; for dependency in $DEPENDENCIES; do while [ $(curl --insecure --connect-timeout 1 -s -o /dev/null -w "%{http_code}" $dependency) -ne 200 ]; do echo waiting for dependencies; sleep 1; done; done;']
+
+      containers:
+      - name: amf
+        image: towards5gs/free5gc-amf:latest
+        imagePullPolicy: Always
+        securityContext:
+            {}
+        ports:
+        - name: namf
+          containerPort: 80
+        - name: n2
+          containerPort: 38412
+          protocol: SCTP
+        command: ["./amf"]
+        args: ["-c", "../config/amfcfg.yaml"]
+        env:
+          - name: GIN_MODE
+            value: release
+        volumeMounts:
+        - mountPath: /free5gc/config/
+          name: release-name-free5gc-amf-volume
+        resources:
+            requests:
+              cpu: 150m
+              memory: 128Mi
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      nodeSelector:
+      - key1: value1
+      affinity:
+        {}
+      tolerations:
+        []
+
+      volumes:
+      - name: release-name-free5gc-amf-volume
+        projected:
+          sources:
+          - configMap:
+              name: release-name-free5gc-amf-configmap
+---
+# Source: free5gc/charts/free5gc-ausf/templates/ausf-deployment.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: release-name-free5gc-ausf-ausf
+  labels:
+    helm.sh/chart: free5gc-ausf-0.2.7
+    app.kubernetes.io/name: free5gc-ausf
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+    project: free5gc
+    nf: ausf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: free5gc-ausf
+      app.kubernetes.io/instance: release-name
+      project: free5gc
+      nf: ausf
+  template:
+    metadata:
+      annotations:
+        
+        checksum/config: a8ad8a761f269764a46f4399850cc857c076749ad86e7206304cbf91869fbd49
+      labels:
+        app.kubernetes.io/name: free5gc-ausf
+        app.kubernetes.io/instance: release-name
+        project: free5gc
+        nf: ausf
+    spec:
+      imagePullSecrets:
+        []
+      securityContext:
+        {}
+      initContainers:
+      - name: wait-nrf
+        image: towards5gs/initcurl:1.0.0
+        env:
+        - name: DEPENDENCIES
+          value: http://nrf-nnrf:8000
+        command: ['sh', '-c', 'set -x; for dependency in $DEPENDENCIES; do while [ $(curl --insecure --connect-timeout 1 -s -o /dev/null -w "%{http_code}" $dependency) -ne 200 ]; do echo waiting for dependencies; sleep 1; done; done;']
+
+      containers:
+      - name: ausf
+        image: towards5gs/free5gc-ausf:latest
+        imagePullPolicy: Always
+        securityContext:
+            {}
+        ports:
+        - containerPort: 80
+        command: ["./ausf"]
+        args: ["-c", "../config/ausfcfg.yaml"]
+        env:
+          - name: GIN_MODE
+            value: release
+        volumeMounts:
+        - mountPath: /free5gc/config/
+          name: release-name-free5gc-ausf-volume
+        resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      nodeSelector:
+      - key1: value1
+      affinity:
+        {}
+      tolerations:
+        []
+
+      volumes:
+      - name: release-name-free5gc-ausf-volume
+        projected:
+          sources:
+          - configMap:
+              name: release-name-free5gc-ausf-configmap
+---
+# Source: free5gc/charts/free5gc-dbpython/templates/dbpython-deployment.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: release-name-free5gc-dbpython-dbpython
+  labels:
+    helm.sh/chart: free5gc-dbpython-0.1.0
+    app.kubernetes.io/name: free5gc-dbpython
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+    project: free5gc
+    nf: dbpython
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: free5gc-dbpython
+      app.kubernetes.io/instance: release-name
+      project: free5gc
+      nf: dbpython
+  template:
+    metadata:
+      annotations:
+        
+      labels:
+        app.kubernetes.io/name: free5gc-dbpython
+        app.kubernetes.io/instance: release-name
+        project: free5gc
+        nf: dbpython
+    spec:
+      imagePullSecrets:
+        []
+      securityContext:
+        {}
+      initContainers:
+      - name: wait-mongo
+        image: busybox:1.32.0
+        env:
+        - name: DEPENDENCIES
+          value: mongodb:27017
+        command: ["sh", "-c", "until nc -z $DEPENDENCIES; do echo waiting for the MongoDB; sleep 2; done;"]
+      containers:
+      - name: dbpython
+        image: towards5gs/free5gc-dbpython:latest
+        imagePullPolicy: Always
+        securityContext:
+            {}
+        command: ["sleep"]
+        args: ["infinity"]
+        #command: ["node"]
+        #args: ["server/index.js"]
+        env:
+          - name: DB_URI
+            value: mongodb://mongodb:27017
+        resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      nodeSelector:
+      - key1: value1
+      affinity:
+        {}
+      tolerations:
+        []
+---
+# Source: free5gc/charts/free5gc-nrf/templates/nrf-deployment.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: release-name-free5gc-nrf-nrf
+  labels:
+    helm.sh/chart: free5gc-nrf-0.2.7
+    app.kubernetes.io/name: free5gc-nrf
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+    project: free5gc
+    nf: nrf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: free5gc-nrf
+      app.kubernetes.io/instance: release-name
+      project: free5gc
+      nf: nrf
+  template:
+    metadata:
+      annotations:
+        
+        checksum/config: cf7b7dc522e5cd9debc1b75d59c5707705b30b4145ede17f8839ffdfdeee8d51
+      labels:
+        app.kubernetes.io/name: free5gc-nrf
+        app.kubernetes.io/instance: release-name
+        project: free5gc
+        nf: nrf
+    spec:
+      imagePullSecrets:
+        []
+      securityContext:
+        {}
+      initContainers:
+      - name: wait-mongo
+        image: busybox:1.32.0
+        env:
+        - name: DEPENDENCIES
+          value: mongodb:27017
+        command: ["sh", "-c", "until nc -z $DEPENDENCIES; do echo waiting for the MongoDB; sleep 2; done;"]
+      containers:
+      - name: nrf
+        image: towards5gs/free5gc-nrf:latest
+        imagePullPolicy: Always
+        securityContext:
+            {}
+        ports:
+        - containerPort: 8000
+        command: ["./nrf"]
+        args: ["-c", "../config/nrfcfg.yaml"]
+        env:
+          - name: DB_URI
+            value: mongodb://mongodb/free5gc
+          - name: GIN_MODE
+            value: release
+        volumeMounts:
+        - mountPath: /free5gc/config/
+          name: release-name-free5gc-nrf-volume
+        resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+        readinessProbe:
+          initialDelaySeconds: 0
+          periodSeconds: 1
+          timeoutSeconds: 1
+          failureThreshold:  40
+          successThreshold: 1
+          httpGet:
+            scheme: "HTTP"
+            port: 8000
+        livenessProbe:
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 10
+          failureThreshold: 3
+          successThreshold: 1
+          httpGet:
+            scheme: "HTTP"
+            port: 8000
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      nodeSelector:
+      - key1: value1
+      affinity:
+        {}
+      tolerations:
+        []
+
+      volumes:
+      - name: release-name-free5gc-nrf-volume
+        projected:
+          sources:
+          - configMap:
+              name: release-name-free5gc-nrf-configmap
+---
+# Source: free5gc/charts/free5gc-nssf/templates/nssf-deployment.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: release-name-free5gc-nssf-nssf
+  labels:
+    helm.sh/chart: free5gc-nssf-0.2.7
+    app.kubernetes.io/name: free5gc-nssf
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+    project: free5gc
+    nf: nssf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: free5gc-nssf
+      app.kubernetes.io/instance: release-name
+      project: free5gc
+      nf: nssf
+  template:
+    metadata:
+      annotations:
+        
+        checksum/config: cf624241f7d376b6a50072954b51a4fbb40cb80b54073b95930ff6cc21c1f78d
+      labels:
+        app.kubernetes.io/name: free5gc-nssf
+        app.kubernetes.io/instance: release-name
+        project: free5gc
+        nf: nssf
+    spec:
+      imagePullSecrets:
+        []
+      securityContext:
+        {}
+      initContainers:
+      - name: wait-nrf
+        image: towards5gs/initcurl:1.0.0
+        env:
+        - name: DEPENDENCIES
+          value: http://nrf-nnrf:8000
+        command: ['sh', '-c', 'set -x; for dependency in $DEPENDENCIES; do while [ $(curl --insecure --connect-timeout 1 -s -o /dev/null -w "%{http_code}" $dependency) -ne 200 ]; do echo waiting for dependencies; sleep 1; done; done;']
+
+      containers:
+      - name: nssf
+        image: towards5gs/free5gc-nssf:latest
+        imagePullPolicy: Always
+        securityContext:
+            {}
+        ports:
+        - containerPort: 80
+        command: ["./nssf"]
+        args: ["-c", "../config/nssfcfg.yaml"]
+        env:
+          - name: GIN_MODE
+            value: release
+        volumeMounts:
+        - mountPath: /free5gc/config/
+          name: release-name-free5gc-nssf-volume
+        resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      nodeSelector:
+      - key1: value1
+      affinity:
+        {}
+      tolerations:
+        []
+
+      volumes:
+      - name: release-name-free5gc-nssf-volume
+        projected:
+          sources:
+          - configMap:
+              name: release-name-free5gc-nssf-configmap
+---
+# Source: free5gc/charts/free5gc-pcf/templates/pcf-deployment.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: release-name-free5gc-pcf-pcf
+  labels:
+    helm.sh/chart: free5gc-pcf-0.2.7
+    app.kubernetes.io/name: free5gc-pcf
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+    project: free5gc
+    nf: pcf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: free5gc-pcf
+      app.kubernetes.io/instance: release-name
+      project: free5gc
+      nf: pcf
+  template:
+    metadata:
+      annotations:
+        
+        checksum/config: 60262d6c14ea38bd98ac98f90d87a7a14c33b84750b1b371aa3f651a75fe5447
+      labels:
+        app.kubernetes.io/name: free5gc-pcf
+        app.kubernetes.io/instance: release-name
+        project: free5gc
+        nf: pcf
+    spec:
+      imagePullSecrets:
+        []
+      securityContext:
+        {}
+      initContainers:
+      - name: wait-nrf
+        image: towards5gs/initcurl:1.0.0
+        env:
+        - name: DEPENDENCIES
+          value: http://nrf-nnrf:8000
+        command: ['sh', '-c', 'set -x; for dependency in $DEPENDENCIES; do while [ $(curl --insecure --connect-timeout 1 -s -o /dev/null -w "%{http_code}" $dependency) -ne 200 ]; do echo waiting for dependencies; sleep 1; done; done;']
+
+
+      containers:
+      - name: pcf
+        image: towards5gs/free5gc-pcf:latest
+        imagePullPolicy: Always
+        securityContext:
+            {}
+        ports:
+        - containerPort: 80
+        command: ["./pcf"]
+        args: ["-c", "../config/pcfcfg.yaml"]
+        env:
+          - name: GIN_MODE
+            value: release
+        volumeMounts:
+        - mountPath: /free5gc/config/
+          name: release-name-free5gc-pcf-volume
+        resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      nodeSelector:
+      - key1: value1
+      affinity:
+        {}
+      tolerations:
+        []
+
+      volumes:
+      - name: release-name-free5gc-pcf-volume
+        projected:
+          sources:
+          - configMap:
+              name: release-name-free5gc-pcf-configmap
+---
+# Source: free5gc/charts/free5gc-smf/templates/smf-deployment.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: release-name-free5gc-smf-smf
+  labels:
+    helm.sh/chart: free5gc-smf-0.2.7
+    app.kubernetes.io/name: free5gc-smf
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+    project: free5gc
+    nf: smf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: free5gc-smf
+      app.kubernetes.io/instance: release-name
+      project: free5gc
+      nf: smf
+  template:
+    metadata:
+      annotations:
+        
+        k8s.v1.cni.cncf.io/networks: '[
+            { "name": "n4network-release-name-free5gc-smf",
+              "interface": "n4",
+              "ips": [ "10.100.50.244/29" ],
+              "gateway": [ "10.100.50.246" ]
+            }]'
+        checksum/config: 2f093f84d9b9addf4774829d6c4bc14b20715b6fab20cdaba0c14ae39026a564
+      labels:
+        app.kubernetes.io/name: free5gc-smf
+        app.kubernetes.io/instance: release-name
+        project: free5gc
+        nf: smf
+    spec:
+      imagePullSecrets:
+        []
+      securityContext:
+        {}
+      initContainers:
+      - name: wait-nrf
+        image: towards5gs/initcurl:1.0.0
+        env:
+        - name: DEPENDENCIES
+          value: http://nrf-nnrf:8000
+        command: ['sh', '-c', 'set -x; for dependency in $DEPENDENCIES; do while [ $(curl --insecure --connect-timeout 1 -s -o /dev/null -w "%{http_code}" $dependency) -ne 200 ]; do echo waiting for dependencies; sleep 1; done; done;']
+
+      containers:
+      - name: smf
+        image: towards5gs/free5gc-smf:latest
+        imagePullPolicy: Always
+        securityContext:
+            {}
+        ports:
+        - name: nsmf
+          containerPort: 80
+        - name: n4
+          containerPort: 8805
+          protocol: UDP
+        command: ["./smf"]
+        args: ["-c", "../config/smfcfg.yaml", "-u", "../config/uerouting.yaml"]
+        env:
+          - name: GIN_MODE
+            value: release
+        volumeMounts:
+        - mountPath: /free5gc/config/
+          name: release-name-free5gc-smf-volume
+        resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      nodeSelector:
+      - key1: value1
+      affinity:
+        {}
+      tolerations:
+        []
+
+      volumes:
+      - name: release-name-free5gc-smf-volume
+        projected:
+          sources:
+          - configMap:
+              name: release-name-free5gc-smf-configmap
+              items:
+              - key: smfcfg.yaml
+                path: smfcfg.yaml
+              - key: uerouting.yaml
+                path: uerouting.yaml
+---
+# Source: free5gc/charts/free5gc-udm/templates/udm-deployment.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: release-name-free5gc-udm-udm
+  labels:
+    helm.sh/chart: free5gc-udm-0.2.7
+    app.kubernetes.io/name: free5gc-udm
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+    project: free5gc
+    nf: udm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: free5gc-udm
+      app.kubernetes.io/instance: release-name
+      project: free5gc
+      nf: udm
+  template:
+    metadata:
+      annotations:
+        
+        checksum/config: 29f1bfc3832d600c046fc3b0a62ae46ef93d1d6acba00111dce167abe991756c
+      labels:
+        app.kubernetes.io/name: free5gc-udm
+        app.kubernetes.io/instance: release-name
+        project: free5gc
+        nf: udm
+    spec:
+      imagePullSecrets:
+        []
+      securityContext:
+        {}
+      initContainers:
+      - name: wait-nrf
+        image: towards5gs/initcurl:1.0.0
+        env:
+        - name: DEPENDENCIES
+          value: http://nrf-nnrf:8000
+        command: ['sh', '-c', 'set -x; for dependency in $DEPENDENCIES; do while [ $(curl --insecure --connect-timeout 1 -s -o /dev/null -w "%{http_code}" $dependency) -ne 200 ]; do echo waiting for dependencies; sleep 1; done; done;']
+
+      containers:
+      - name: udm
+        image: towards5gs/free5gc-udm:latest
+        imagePullPolicy: Always
+        securityContext:
+            {}
+        ports:
+        - containerPort: 80
+        command: ["./udm"]
+        args: ["-c", "../config/udmcfg.yaml"]
+        env:
+          - name: GIN_MODE
+            value: release
+        volumeMounts:
+        - mountPath: /free5gc/config/
+          name: release-name-free5gc-udm-volume
+        resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      nodeSelector:
+      - key1: value1
+      affinity:
+        {}
+      tolerations:
+        []
+
+      volumes:
+      - name: release-name-free5gc-udm-volume
+        projected:
+          sources:
+          - configMap:
+              name: release-name-free5gc-udm-configmap
+---
+# Source: free5gc/charts/free5gc-udr/templates/udr-deployment.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: release-name-free5gc-udr-udr
+  labels:
+    helm.sh/chart: free5gc-udr-0.2.7
+    app.kubernetes.io/name: free5gc-udr
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+    project: free5gc
+    nf: udr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: free5gc-udr
+      app.kubernetes.io/instance: release-name
+      project: free5gc
+      nf: udr
+  template:
+    metadata:
+      annotations:
+        
+        checksum/config: 470808eb0a93077b363277e2783fa0db5724c2e56cd79f559293d53f96d8952f
+      labels:
+        app.kubernetes.io/name: free5gc-udr
+        app.kubernetes.io/instance: release-name
+        project: free5gc
+        nf: udr
+    spec:
+      imagePullSecrets:
+        []
+      securityContext:
+        {}
+      initContainers:
+      - name: wait-nrf
+        image: towards5gs/initcurl:1.0.0
+        env:
+        - name: DEPENDENCIES
+          value: http://nrf-nnrf:8000
+        command: ['sh', '-c', 'set -x; for dependency in $DEPENDENCIES; do while [ $(curl --insecure --connect-timeout 1 -s -o /dev/null -w "%{http_code}" $dependency) -ne 200 ]; do echo waiting for dependencies; sleep 1; done; done;']
+
+      containers:
+      - name: udr
+        image: towards5gs/free5gc-udr:latest
+        imagePullPolicy: Always
+        securityContext:
+            {}
+        ports:
+        - containerPort: 80
+        command: ["./udr"]
+        args: ["-c", "../config/udrcfg.yaml"]
+        env:
+          - name: DB_URI
+            value: mongodb://mongodb/free5gc
+          - name: GIN_MODE
+            value: release
+        volumeMounts:
+        - mountPath: /free5gc/config/
+          name: release-name-free5gc-udr-volume
+        resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      nodeSelector:
+      - key1: value1
+      affinity:
+        {}
+      tolerations:
+        []
+
+      volumes:
+      - name: release-name-free5gc-udr-volume
+        projected:
+          sources:
+          - configMap:
+              name: release-name-free5gc-udr-configmap
+---
+# Source: free5gc/charts/free5gc-upf/templates/upf/upf-deployment.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: release-name-free5gc-upf-upf
+  labels:
+    helm.sh/chart: free5gc-upf-0.2.6
+    app.kubernetes.io/name: free5gc-upf
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+    project: free5gc
+    nf: upf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: free5gc-upf
+      app.kubernetes.io/instance: release-name
+      project: free5gc
+      nf: upf
+  template:
+    metadata:
+      annotations:
+        
+        k8s.v1.cni.cncf.io/networks: '[
+            { "name": "n3network-release-name-free5gc-upf",
+              "interface": "n3",
+              "ips": [ "10.100.50.233/29" ],
+              "gateway": [ "10.100.50.238" ]
+            },
+            { "name": "n6network-release-name-free5gc-upf",
+              "interface": "n6",
+              "ips": [ "10.100.100.12/24" ],
+              "gateway": [ "10.100.100.1" ]
+            },
+            { "name": "n4network-release-name-free5gc-upf",
+              "interface": "n4",
+              "ips": [ "10.100.50.241/29" ],
+              "gateway": [ "10.100.50.246" ]
+            }
+            ]'
+        checksum/config: 5e8c5cf2321b1190675cc5f58bfda7a2be1b4bb772f6cb11c3f4406fb15eaa9e
+      labels:
+        app.kubernetes.io/name: free5gc-upf
+        app.kubernetes.io/instance: release-name
+        project: free5gc
+        nf: upf
+    spec:
+      imagePullSecrets:
+        []
+      securityContext:
+        {}
+      containers:
+      - name: upf
+        image: towards5gs/free5gc-upf:latest
+        imagePullPolicy: Always
+        securityContext:
+            capabilities:
+              add:
+              - NET_ADMIN
+        ports:
+        - name: n4
+          containerPort: 8805
+          protocol: UDP
+        command: ["/free5gc/config//wrapper.sh"]
+        volumeMounts:
+        - mountPath: /free5gc/config/
+          name: release-name-free5gc-upf-upf-volume
+        resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      nodeSelector:
+      - key1: value1
+      affinity:
+        {}
+      tolerations:
+        []
+
+      volumes:
+      - name: release-name-free5gc-upf-upf-volume
+        projected:
+          sources:
+          - configMap:
+              name: release-name-free5gc-upf-upf-configmap
+              items:
+              - key: upfcfg.yaml
+                path: upfcfg.yaml
+              - key: wrapper.sh
+                path: wrapper.sh
+                mode: 0777
+---
+# Source: free5gc/charts/free5gc-webui/templates/webui-deployment.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: release-name-free5gc-webui-webui
+  labels:
+    helm.sh/chart: free5gc-webui-0.1.5
+    app.kubernetes.io/name: free5gc-webui
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+    project: free5gc
+    nf: webui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: free5gc-webui
+      app.kubernetes.io/instance: release-name
+      project: free5gc
+      nf: webui
+  template:
+    metadata:
+      annotations:
+        
+        checksum/config: dca9ce1ce322857c13ff22eb20730f2486447fea355551590f1805fa2d3774e3    
+      labels:
+        app.kubernetes.io/name: free5gc-webui
+        app.kubernetes.io/instance: release-name
+        project: free5gc
+        nf: webui
+    spec:
+      imagePullSecrets:
+        []
+      securityContext:
+        {}
+      initContainers:
+      - name: wait-mongo
+        image: busybox:1.32.0
+        env:
+        - name: DEPENDENCIES
+          value: mongodb:27017
+        command: ["sh", "-c", "until nc -z $DEPENDENCIES; do echo waiting for the MongoDB; sleep 2; done;"]
+      containers:
+      - name: webui
+        image: towards5gs/free5gc-webui:latest
+        imagePullPolicy: Always
+        securityContext:
+            {}
+        ports:
+        - containerPort: 5000
+        command: ["./webconsole"]
+        args: ["-c", "../config/webuicfg.yaml"]
+        env:
+          - name: GIN_MODE
+            value: release
+        volumeMounts:
+        - mountPath: /free5gc/config/
+          name: webui-volume
+        resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+        readinessProbe:
+          initialDelaySeconds: 0
+          periodSeconds: 1
+          timeoutSeconds: 1
+          failureThreshold:  40
+          successThreshold: 1
+          httpGet:
+            scheme: HTTP
+            port: 5000
+        livenessProbe:
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 10
+          failureThreshold: 3
+          successThreshold: 1
+          httpGet:
+            scheme: HTTP
+            port: 5000
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      nodeSelector:
+      - key1: value1
+      affinity:
+        {}
+      tolerations:
+        []
+
+      volumes:
+      - name: webui-volume
+        projected:
+          sources:
+          - configMap:
+              name: webui-configmap
+---
+# Source: free5gc/charts/mongodb/templates/standalone/dep-sts.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb
+  namespace: default
+  labels:
+    app.kubernetes.io/name: mongodb
+    helm.sh/chart: mongodb-10.7.0
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: mongodb
+spec:
+  serviceName: mongodb
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mongodb
+      app.kubernetes.io/instance: release-name
+      app.kubernetes.io/component: mongodb
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mongodb
+        helm.sh/chart: mongodb-10.7.0
+        app.kubernetes.io/instance: release-name
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/component: mongodb
+    spec:
+      
+      serviceAccountName: mongodb
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: mongodb
+                    app.kubernetes.io/instance: release-name
+                    app.kubernetes.io/component: mongodb
+                namespaces:
+                  - "default"
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      securityContext:
+        fsGroup: 1001
+        sysctls: []
+      containers:
+        - name: mongodb
+          image: docker.io/bitnami/mongodb:4.4.4-debian-10-r0
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "yes"
+            - name: MONGODB_SYSTEM_LOG_VERBOSITY
+              value: "0"
+            - name: MONGODB_DISABLE_SYSTEM_LOG
+              value: "no"
+            - name: MONGODB_ENABLE_IPV6
+              value: "no"
+            - name: MONGODB_ENABLE_DIRECTORY_PER_DB
+              value: "no"
+          ports:
+            - name: mongodb
+              containerPort: 27017
+          livenessProbe:
+            exec:
+              command:
+                - mongo
+                - --disableImplicitSessions
+                - --eval
+                - "db.adminCommand('ping')"
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 6
+          readinessProbe:
+            exec:
+              command:
+                - bash
+                - -ec
+                - |
+                  mongo --disableImplicitSessions $TLS_OPTIONS --eval 'db.hello().isWritablePrimary || db.hello().secondary' | grep -q 'true'
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 6
+          resources:
+            limits: {}
+            requests: {}
+          volumeMounts:
+            - name: datadir
+              mountPath: /bitnami/mongodb/data/db/
+              subPath: 
+      volumes:
+  volumeClaimTemplates:
+    - metadata:
+        name: datadir
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "6Gi"
+---
+# Source: free5gc/charts/free5gc-amf/templates/amf-hpa.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-amf/templates/amf-ingress.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-ausf/templates/ausf-hpa.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-ausf/templates/ausf-ingress.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-nrf/templates/nrf-hpa.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-nrf/templates/nrf-ingress.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-nssf/templates/nssf-hpa.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-nssf/templates/nssf-ingress.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-pcf/templates/pcf-hpa.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-pcf/templates/pcf-ingress.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-smf/templates/smf-hpa.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-smf/templates/smf-ingress.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-udm/templates/udm-hpa.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-udm/templates/udm-ingress.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-udr/templates/udr-hpa.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-udr/templates/udr-ingress.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-upf/templates/upf-n9-nad.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-upf/templates/upf/upf-hpa.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-upf/templates/upf1/upf1-configmap.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-upf/templates/upf1/upf1-deployment.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-upf/templates/upf1/upf1-hpa.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-upf/templates/upf2/upf2-configmap.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-upf/templates/upf2/upf2-deployment.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-upf/templates/upf2/upf2-hpa.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-upf/templates/upfb/upfb-configmap.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-upf/templates/upfb/upfb-deployment.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-upf/templates/upfb/upfb-hpa.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-webui/templates/webui-hpa.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-webui/templates/webui-ingress.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+---
+# Source: free5gc/charts/free5gc-amf/templates/amf-n2-nad.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  name: n2network-release-name-free5gc-amf
+spec:
+  config: '{
+      "cniVersion": "0.3.1",
+      "plugins": [
+        {
+          "type": "ipvlan",
+          "capabilities": { "ips": true },
+          "master": "eth0",
+          "mode": "l2",
+          "ipam": {
+            "type": "static",
+            "routes": [
+              {
+                "dst": "0.0.0.0/0",
+                "gw": "10.100.50.254"
+              }
+            ]
+          }
+        }
+      ]
+    }'
+---
+# Source: free5gc/charts/free5gc-smf/templates/smf-n4-nad.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  name: n4network-release-name-free5gc-smf
+spec:
+  config: '{
+      "cniVersion": "0.3.1",
+      "plugins": [
+        {
+          "type": "ipvlan",
+          "capabilities": { "ips": true },
+          "master": "eth0",
+          "mode": "l2",
+          "ipam": {
+            "type": "static",
+            "routes": [
+              {
+                "dst": "0.0.0.0/0",
+                "gw": "10.100.50.246"
+              }
+            ]
+          }
+        }
+      ]
+    }'
+---
+# Source: free5gc/charts/free5gc-upf/templates/upf-n3-nad.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  name: n3network-release-name-free5gc-upf
+spec:
+  config: '{
+      "cniVersion": "0.3.1",
+      "plugins": [
+        {
+          "type": "ipvlan",
+          "capabilities": { "ips": true },
+          "master": "eth0",
+          "mode": "l2",
+          "ipam": {
+            "type": "static",
+            "routes": [
+              {
+                "dst": "0.0.0.0/0",
+                "gw": "10.100.50.238"
+              }
+            ]
+          }
+        }
+      ]
+    }'
+---
+# Source: free5gc/charts/free5gc-upf/templates/upf-n4-nad.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  name: n4network-release-name-free5gc-upf
+spec:
+  config: '{
+      "cniVersion": "0.3.1",
+      "plugins": [
+        {
+          "type": "ipvlan",
+          "capabilities": { "ips": true },
+          "master": "eth0",
+          "mode": "l2",
+          "ipam": {
+            "type": "static",
+            "routes": [
+              {
+                "dst": "0.0.0.0/0",
+                "gw": "10.100.50.246"
+              }
+            ]
+          }
+        }
+      ]
+    }'
+---
+# Source: free5gc/charts/free5gc-upf/templates/upf-n6-nad.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  name: n6network-release-name-free5gc-upf
+spec:
+  config: '{
+      "cniVersion": "0.3.1",
+      "plugins": [
+        {
+          "type": "ipvlan",
+          "capabilities": { "ips": true },
+          "master": "eth1",
+          "mode": "l2",
+          "ipam": {
+            "type": "static",
+            "routes": [
+              {
+                "dst": "0.0.0.0/0",
+                "gw": "10.100.100.1"
+              }
+            ]
+          }
+        }
+      ]
+    }'
+---
+# Source: free5gc/charts/free5gc-amf/templates/tests/test-connection.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "release-name-free5gc-amf-test-connection"
+  labels:
+    helm.sh/chart: free5gc-amf-0.2.7
+    app.kubernetes.io/name: free5gc-amf
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: [':80']
+  restartPolicy: Never
+---
+# Source: free5gc/charts/free5gc-ausf/templates/tests/test-connection.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "release-name-free5gc-ausf-test-connection"
+  labels:
+    helm.sh/chart: free5gc-ausf-0.2.7
+    app.kubernetes.io/name: free5gc-ausf
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: [':80']
+  restartPolicy: Never
+---
+# Source: free5gc/charts/free5gc-nrf/templates/tests/test-connection.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "release-name-free5gc-nrf-test-connection"
+  labels:
+    helm.sh/chart: free5gc-nrf-0.2.7
+    app.kubernetes.io/name: free5gc-nrf
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['nrf-nnrf:8000']
+  restartPolicy: Never
+---
+# Source: free5gc/charts/free5gc-nssf/templates/tests/test-connection.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "release-name-free5gc-nssf-test-connection"
+  labels:
+    helm.sh/chart: free5gc-nssf-0.2.7
+    app.kubernetes.io/name: free5gc-nssf
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: [':80']
+  restartPolicy: Never
+---
+# Source: free5gc/charts/free5gc-pcf/templates/tests/test-connection.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "release-name-free5gc-pcf-test-connection"
+  labels:
+    helm.sh/chart: free5gc-pcf-0.2.7
+    app.kubernetes.io/name: free5gc-pcf
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: [':80']
+  restartPolicy: Never
+---
+# Source: free5gc/charts/free5gc-smf/templates/tests/test-connection.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "release-name-free5gc-smf-test-connection"
+  labels:
+    helm.sh/chart: free5gc-smf-0.2.7
+    app.kubernetes.io/name: free5gc-smf
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: [':80']
+  restartPolicy: Never
+---
+# Source: free5gc/charts/free5gc-udm/templates/tests/test-connection.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "release-name-free5gc-udm-test-connection"
+  labels:
+    helm.sh/chart: free5gc-udm-0.2.7
+    app.kubernetes.io/name: free5gc-udm
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: [':80']
+  restartPolicy: Never
+---
+# Source: free5gc/charts/free5gc-udr/templates/tests/test-connection.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "release-name-free5gc-udr-test-connection"
+  labels:
+    helm.sh/chart: free5gc-udr-0.2.7
+    app.kubernetes.io/name: free5gc-udr
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: [':80']
+  restartPolicy: Never
+---
+# Source: free5gc/charts/free5gc-webui/templates/tests/test-connection.yaml
+#
+# Software Name : towards5gs-helm
+# SPDX-FileCopyrightText: Copyright (c) 2021 Orange
+# SPDX-License-Identifier: Apache-2.0
+#
+# This software is distributed under the Apache License 2.0,
+# the text of which is available at https://github.com/Orange-OpenSource/towards5gs-helm/blob/main/LICENSE
+# or see the "LICENSE" file for more details.
+#
+# Author: Abderaouf KHICHANE, Ilhem FAJJARI, Ayoub BOUSSELMI
+# Software description: An open-source project providing Helm charts to deploy 5G components (Core + RAN) on top of Kubernetes
+#
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "release-name-free5gc-webui-test-connection"
+  labels:
+    helm.sh/chart: free5gc-webui-0.1.5
+    app.kubernetes.io/name: free5gc-webui
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['webui-service:5000']
+  restartPolicy: Never
