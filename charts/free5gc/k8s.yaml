@@ -1496,7 +1496,7 @@ spec:
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       nodeSelector:
-      free5gc: 5gc
+        free5gc: 5gc
       affinity:
         {}
       tolerations:
@@ -1588,7 +1588,7 @@ spec:
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       nodeSelector:
-      free5gc: 5gc
+        free5gc: 5gc
       affinity:
         {}
       tolerations:
@@ -1678,7 +1678,7 @@ spec:
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       nodeSelector:
-      free5gc: 5gc
+        free5gc: 5gc
       affinity:
         {}
       tolerations:
@@ -1782,7 +1782,7 @@ spec:
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       nodeSelector:
-      free5gc: 5gc
+        free5gc: 5gc
       affinity:
         {}
       tolerations:
@@ -1874,7 +1874,7 @@ spec:
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       nodeSelector:
-      free5gc: 5gc
+        free5gc: 5gc
       affinity:
         {}
       tolerations:
@@ -1967,7 +1967,7 @@ spec:
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       nodeSelector:
-      free5gc: 5gc
+        free5gc: 5gc
       affinity:
         {}
       tolerations:
@@ -2069,7 +2069,7 @@ spec:
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       nodeSelector:
-      free5gc: 5gc
+        free5gc: 5gc
       affinity:
         {}
       tolerations:
@@ -2166,7 +2166,7 @@ spec:
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       nodeSelector:
-      free5gc: 5gc
+        free5gc: 5gc
       affinity:
         {}
       tolerations:
@@ -2260,7 +2260,7 @@ spec:
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       nodeSelector:
-      free5gc: 5gc
+        free5gc: 5gc
       affinity:
         {}
       tolerations:
@@ -2361,7 +2361,7 @@ spec:
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       nodeSelector:
-      free5gc: 5gc
+        free5gc: 5gc
       affinity:
         {}
       tolerations:
@@ -2476,7 +2476,7 @@ spec:
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       nodeSelector:
-      free5gc: 5gc
+        free5gc: 5gc
       affinity:
         {}
       tolerations:
