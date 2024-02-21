@@ -2538,6 +2538,8 @@ spec:
               weight: 1
         nodeAffinity:
           
+      nodeSelector:
+        free5gc: 5gc
       securityContext:
         fsGroup: 1001
         sysctls: []
@@ -3036,7 +3038,7 @@ spec:
         {
           "type": "ipvlan",
           "capabilities": { "ips": true },
-          "master": "eth0",
+          "master": "ens4",
           "mode": "l2",
           "ipam": {
             "type": "static",
@@ -3075,7 +3077,7 @@ spec:
         {
           "type": "ipvlan",
           "capabilities": { "ips": true },
-          "master": "eth0",
+          "master": "ens4",
           "mode": "l2",
           "ipam": {
             "type": "static",
@@ -3114,7 +3116,7 @@ spec:
         {
           "type": "ipvlan",
           "capabilities": { "ips": true },
-          "master": "eth0",
+          "master": "ens4",
           "mode": "l2",
           "ipam": {
             "type": "static",
@@ -3153,7 +3155,7 @@ spec:
         {
           "type": "ipvlan",
           "capabilities": { "ips": true },
-          "master": "eth0",
+          "master": "ens4",
           "mode": "l2",
           "ipam": {
             "type": "static",
@@ -3192,7 +3194,7 @@ spec:
         {
           "type": "ipvlan",
           "capabilities": { "ips": true },
-          "master": "eth1",
+          "master": "ens4",
           "mode": "l2",
           "ipam": {
             "type": "static",
